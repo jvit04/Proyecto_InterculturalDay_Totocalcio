@@ -1,13 +1,13 @@
 package controller;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
+import javafx.application.Platform;
+import javafx.scene.input.MouseEvent;
 import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Clase clave para el funcionamiento de la aplicación, aquí está toda la lógica de la app.
@@ -611,6 +612,39 @@ private void limpiarBotonesDeLaFila(int fila){
     void restaurarPantallaCompleta(MouseEvent event) {
         Stage stagePrincipal = (Stage) idPanelJuego.getScene().getWindow();
         stagePrincipal.setFullScreen(true);
+    }
+    @FXML
+    void regresarPantallaInicio(MouseEvent event) {
+        // Volvemos a hacer visible la pantalla de carga gigante de Ciao
+        idPantallaCarga.setVisible(true);
+        reiniciarTablero();
+    }
+
+    @FXML
+    void cerrarAplicacion(MouseEvent event) {
+        // Creamos una alerta de tipo CONFIRMACIÓN
+        Alert alertaCerrar = new Alert(Alert.AlertType.CONFIRMATION);
+        alertaCerrar.setTitle("Conferma di chiusura");
+        alertaCerrar.setHeaderText("Stai per chiudere il Totocalcio");
+        alertaCerrar.setContentText("Sei sicuro di voler uscire dall'applicazione?");
+
+        // Protegemos el FullScreen asociando la alerta a la ventana principal
+        Stage stagePrincipal = (Stage) idPanelJuego.getScene().getWindow();
+        alertaCerrar.initOwner(stagePrincipal);
+
+        // Estilizado opcional rápido para que no desentone
+        DialogPane dialogPane = alertaCerrar.getDialogPane();
+        dialogPane.setStyle("-fx-background-color: #f4f4f4;");
+
+        // showAndWait() devuelve un 'Optional' que nos dice qué botón se presionó
+        Optional<ButtonType> resultado = alertaCerrar.showAndWait();
+
+        // Si el usuario presionó OK, entonces cerramos todo
+        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+            javafx.application.Platform.exit();
+            System.exit(0);
+        }
+        // Si presionó Cancelar o cerró la ventana, no hace nada y sigue el juego
     }
 }
 
