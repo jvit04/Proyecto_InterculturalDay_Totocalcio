@@ -288,8 +288,13 @@
                         <Font name="Roboto Black" size="17.0" />
                     </font>
                 </Label>
-            <HBox layoutX="1198.0" layoutY="2.0" prefHeight="24.0" prefWidth="73.0" spacing="5.0" style="-fx-background-color: #ebebeb;">
+            <HBox layoutX="1169.0" layoutY="2.0" prefHeight="24.0" prefWidth="73.0" spacing="5.0" style="-fx-background-color: #ebebeb;">
                <children>
+                  <ImageView fx:id="imgView_ayuda" fitHeight="24.0" fitWidth="25.0" onMousePressed="#mostrarAyuda" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@imagenes/interrogatorio.png" />
+                     </image>
+                  </ImageView>
                   <ImageView fx:id="imgView_maximizar" fitHeight="24.0" fitWidth="25.0" onMousePressed="#restaurarPantallaCompleta" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@imagenes/maximizar.png" />
