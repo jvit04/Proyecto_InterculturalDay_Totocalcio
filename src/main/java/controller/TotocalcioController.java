@@ -646,5 +646,73 @@ private void limpiarBotonesDeLaFila(int fila){
         }
         // Si presionó Cancelar o cerró la ventana, no hace nada y sigue el juego
     }
+
+    @FXML
+    void mostrarAyuda(MouseEvent event) {
+        // 1. Configuración básica de la Alerta
+        Alert alertaAyuda = new Alert(Alert.AlertType.INFORMATION);
+        alertaAyuda.setTitle("Guida Visiva");
+        alertaAyuda.setHeaderText(null);
+        alertaAyuda.setGraphic(null);
+
+        // --- CONTENEDOR PRINCIPAL ---
+        VBox contenedorPrincipal = new VBox(0);
+        contenedorPrincipal.setAlignment(javafx.geometry.Pos.CENTER);
+        contenedorPrincipal.setStyle("-fx-background-color: #f4f4f4; -fx-background-radius: 10; -fx-overflow: hidden;");
+
+        // --- CABECERA AZUL ---
+        HBox headerPersonalizado = new HBox();
+        headerPersonalizado.setAlignment(javafx.geometry.Pos.CENTER);
+        headerPersonalizado.setPadding(new javafx.geometry.Insets(15, 20, 15, 20));
+        headerPersonalizado.setStyle("-fx-background-color: #19436a; -fx-background-radius: 10 10 0 0;");
+        headerPersonalizado.setPrefWidth(550); // Un poco más ancho para el GIF
+
+        Label lblTituloHeader = new Label("GUIDA VISIVA: COME GIOCARE");
+        lblTituloHeader.setStyle("-fx-font-family: 'Roboto Black'; -fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
+        headerPersonalizado.getChildren().add(lblTituloHeader);
+
+        // --- CUERPO DE LA AYUDA ---
+        VBox cuerpoAyuda = new VBox(15);
+        cuerpoAyuda.setAlignment(javafx.geometry.Pos.CENTER);
+        cuerpoAyuda.setPadding(new javafx.geometry.Insets(25));
+
+        try {
+            // Cargamos el GIF animado de las instrucciones
+            ImageView gifInstrucciones = new ImageView(new Image(getClass().getResourceAsStream("/imagenes/istruzioniCiao.gif")));
+            gifInstrucciones.setFitWidth(450); // Tamaño ideal para que se aprecien los pasos
+            gifInstrucciones.setPreserveRatio(true);
+
+            cuerpoAyuda.getChildren().add(gifInstrucciones);
+        } catch (Exception e) {
+            System.out.println("Error al cargar istruzioniCiao.gif: " + e.getMessage());
+        }
+
+        // Texto de refuerzo debajo del GIF
+        Label lblExplicacion = new Label("Segui i passaggi mostrati nell'animazione\nper completare la tua scommessa.");
+        lblExplicacion.setStyle("-fx-font-size: 16px; -fx-font-family: 'Roboto'; -fx-text-fill: #444444; -fx-text-alignment: center;");
+        lblExplicacion.setWrapText(true);
+
+        cuerpoAyuda.getChildren().add(lblExplicacion);
+
+        // Unimos cabecera y cuerpo
+        contenedorPrincipal.getChildren().addAll(headerPersonalizado, cuerpoAyuda);
+
+        // Inyectamos el diseño en la alerta
+        DialogPane dialogPane = alertaAyuda.getDialogPane();
+        dialogPane.setContent(contenedorPrincipal);
+        dialogPane.setStyle("-fx-background-color: transparent;");
+
+        // --- DETALLE DE UX: Cambiamos el texto del botón OK a "HO CAPITO" ---
+        Button botonOk = (Button) dialogPane.lookupButton(ButtonType.OK);
+        if (botonOk != null) {
+            botonOk.setText("HO CAPITO"); // Traduce a: "Ya entendí"
+            botonOk.setStyle("-fx-background-color: #19436a; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 30 10 30;");
+        }
+
+        // Proteger el FullScreen y mostrar
+        Stage stagePrincipal = (Stage) idPanelJuego.getScene().getWindow();
+        alertaAyuda.initOwner(stagePrincipal);
+        alertaAyuda.showAndWait();
+    }
 }
 
