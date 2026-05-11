@@ -1,6 +1,5 @@
 package controller;
 import javafx.scene.control.*;
-import javafx.application.Platform;
 import javafx.scene.input.MouseEvent;
 import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
@@ -14,7 +13,6 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import utilities.*;
 import javafx.stage.Stage;
-import javax.swing.*;
 import javafx.scene.media.AudioClip;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,15 +24,41 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Clase clave para el funcionamiento de la aplicación, aquí está toda la lógica de la app.
+ *Controlador principal del juego.
+ *<p>
+ * Como funciona el programa:
+ * El programa trabaja seleccionando preguntas aleatorias, es decir, de todos los mundiales (22) y partidos de
+ * la liga italiana escogidos (5) selecciona 7 y 1 respectivamente. Por lo tanto, los labels y botones asociados al respecto
+ * necesitan cambiar dependiendo del partido que aparezca en pantalla.
+ * <p>
+ * Estos objetos siguen el siguiente formato:
+ * Labels:
+ * - lblTitulo_n: 7 partidos en total, por eso va de 0 a 6, aquí se pueden apreciar el título del partido. Ej. MONDIALE FRANCIA 2006
+ * - lblLocal_n: todos los equipos de casa ubicados a la izquierda en cada casilla.
+ * - lblVisit_n: todos los equipos de visita ubicados a la derecha en cada casilla.
+ * <p>
+ * Buttons:
+ * Los botones 1, X, y 2 toman el siguiente formato: btn_partido_opcion
+ * El centro es el partido al cual pertenece el botón, si tengo 7 (del 0 al 6) partidos, la primera pregunta tendre btn_0_opcion
+ * La opción varía entre 1, X, y 2, siguiente el ejemplo anterior, hay tres posibilidades: btn_0_1, btn_0_X, btn_0_2.
+ * <p>
+ *  Estructura visual donde n es el número de pregunta:
+ * <p>
+ *  Formato General:
+ *                              lblTitulo_n
+ *      lblLocal_n       (label que dice "vs.")       lblVisit_n
+ *      btn_n_1                  btn_n_X                btn_n_2
+ * <p>
+ * Nota: Este formato no aplica con la septima pregunta, pero unicamente por tema de ubicación (layout) de los objetos.
+ *       De ahi, emplea la misma nomenclatura.
  */
 public class TotocalcioController {
-    /**
-     * Atributos y objetos @FX
-     */
+    //El label que tiene el número del concurso tiene autoincremento, por lo que es indispensable tener una variable para ello.
     private int numeroConcursoActual = 0;
+
+    //Se eligió la estructura de datos 'Max-Heap' o cola de prioridad
     ComparadorParticipante cmp=new ComparadorParticipante();
-    MaxHeap<Participante> leaderboard =  new MaxHeap<>(cmp);
+    MaxHeap<Participante> tablaPosiciones =  new MaxHeap<>(cmp);
     private String[] apuestasUsuario = new String[7];
 
     //Se creará un temporizador para el reinicio de la app
@@ -49,9 +73,16 @@ public class TotocalcioController {
     private ImageView[] imgLocales;
     private ImageView[] imgVisitantes;
 
+
     @FXML private Label lblTitulo_0, lblTitulo_1, lblTitulo_2, lblTitulo_3, lblTitulo_4, lblTitulo_5, lblTitulo_6;
     @FXML private Label lblLocal_0, lblLocal_1, lblLocal_2, lblLocal_3, lblLocal_4, lblLocal_5, lblLocal_6;
     @FXML private Label lblVisit_0, lblVisit_1, lblVisit_2, lblVisit_3, lblVisit_4, lblVisit_5, lblVisit_6;
+
+    @FXML private Button btn_0_1, btn_1_1, btn_2_1, btn_3_1, btn_4_1, btn_5_1, btn_6_1;
+    @FXML private Button btn_0_2, btn_1_2, btn_2_2, btn_3_2, btn_4_2, btn_5_2, btn_6_2;
+    @FXML private Button btn_0_X, btn_1_X, btn_2_X, btn_3_X, btn_4_X, btn_5_X, btn_6_X;
+
+
     @FXML private ImageView imgLocal_0, imgLocal_1, imgLocal_2, imgLocal_3, imgLocal_4, imgLocal_5, imgLocal_6;
     @FXML private ImageView imgVisit_0, imgVisit_1, imgVisit_2, imgVisit_3, imgVisit_4, imgVisit_5, imgVisit_6;
     @FXML
@@ -66,68 +97,7 @@ public class TotocalcioController {
     private VBox vboxListaRanking;
     @FXML
     private AnchorPane idPanelJuego;
-    @FXML
-    private Button btn_0_1;
 
-    @FXML
-    private Button btn_0_2;
-
-    @FXML
-    private Button btn_0_X;
-
-    @FXML
-    private Button btn_1_1;
-
-    @FXML
-    private Button btn_1_2;
-
-    @FXML
-    private Button btn_1_X;
-
-    @FXML
-    private Button btn_2_1;
-
-    @FXML
-    private Button btn_2_2;
-
-    @FXML
-    private Button btn_2_X;
-
-    @FXML
-    private Button btn_3_1;
-
-    @FXML
-    private Button btn_3_2;
-
-    @FXML
-    private Button btn_3_X;
-
-    @FXML
-    private Button btn_4_1;
-
-    @FXML
-    private Button btn_4_2;
-
-    @FXML
-    private Button btn_4_X;
-
-    @FXML
-    private Button btn_5_1;
-
-    @FXML
-    private Button btn_5_2;
-
-    @FXML
-    private Button btn_5_X;
-
-    @FXML
-    private Button btn_6_1;
-
-    @FXML
-    private Button btn_6_2;
-
-    @FXML
-    private Button btn_6_X;
     @FXML
     private HBox panelNotificacion;
     @FXML
@@ -136,14 +106,17 @@ public class TotocalcioController {
     private Button btn_enviar_apuesta;
     @FXML
     private Label lblConcorso;
-    // === EFECTOS DE SONIDO ===
+
+    // Efectos de sonido para mejorar la interacción del usuario
     private AudioClip sonidoSilbato;
     private AudioClip sonidoPerfecto;
+
+    // Sonido que se usa cuando al final del duelo gana una persona Vincitore = Vencedor o Ganador
     private AudioClip sonidoVincitore;
+
+    // Sonido que se usa cuando al final del duelo quedan en empate los concursantes Pareggio = Empate
     private AudioClip sonidoPareggio;
-    /**
-     * Metodo para inicializar la aplicación
-     */
+
     public void initialize(){
         // 1. Agrupamos los elementos en orden (del slot 0 al 6)
         titulos = new Label[]{lblTitulo_0, lblTitulo_1, lblTitulo_2, lblTitulo_3, lblTitulo_4, lblTitulo_5, lblTitulo_6};
@@ -155,7 +128,7 @@ public class TotocalcioController {
         // 2. Llenamos el tablero por primera vez
         llenarTablero();
         cargarLeaderboard();
-        actualizarLeaderboardUI();
+        actualizarTablaPosicionesUI();
         idPantallaCarga.setVisible(true);
         numeroConcursoActual = ConexionBD.obtenerSiguienteConcurso();
         lblConcorso.setText(String.valueOf(numeroConcursoActual));
@@ -201,7 +174,7 @@ public class TotocalcioController {
         }
     }
     /**
-     * Metodo que carga la tabla de posiciones (leaderboard) actual, guardandola en el Heap
+     * Metodo que carga la tabla de posiciones (tablaLideres) actual, guardandola en el Heap
      */
     public void cargarLeaderboard(){
         //llamo a la función de la base de datos
@@ -218,7 +191,7 @@ public class TotocalcioController {
 
                 //se crea un objeto Participante y se lo guarda en el Heap
                 Participante participante = new Participante(nombre, puntos);
-                leaderboard.insertar(participante);
+                tablaPosiciones.insertar(participante);
             }
         }catch (SQLException e){
             System.out.println("Error al cargar la base de datos :( :" + e.getMessage());
@@ -229,11 +202,11 @@ public class TotocalcioController {
      * Metodo que actualiza la tabla de posiciones en el UI
      * Es la parte visual, también genera colores diferentes para los primeros tres puestos
      */
-    public void actualizarLeaderboardUI() {
+    public void actualizarTablaPosicionesUI() {
         // 1. Limpiar la interfaz previa
         vboxListaRanking.getChildren().clear();
         //2. Obtener la lista de los mejores N participantes
-        List<Participante> topParticipantes = leaderboard.obtenerTopN(10);
+        List<Participante> topParticipantes = tablaPosiciones.obtenerTopN(10);
 
         int puesto = 1;
         for (Participante p : topParticipantes) {
@@ -379,8 +352,8 @@ private void limpiarBotonesDeLaFila(int fila){
         String nombreJugador = NameGenerator.generarNombreAleatorio();
         int idRealAsignado = ConexionBD.guardarParticipante(nombreJugador, puntosObtenidos);
         Participante participante =  new Participante(nombreJugador,puntosObtenidos);
-        leaderboard.insertar(participante);
-        actualizarLeaderboardUI();
+        tablaPosiciones.insertar(participante);
+        actualizarTablaPosicionesUI();
 
         // 1. CREAMOS LA ALERTA DE RESUMEN INDIVIDUAL
         String mensajeResumen = "Giocatore: " + nombreJugador + "\n" +
@@ -506,11 +479,11 @@ private void limpiarBotonesDeLaFila(int fila){
 
         //En caso se ejecute la aplicación en dos laptops, para la sincronización se deberá consultar de nuevo a la base
         // 1. Vaciamos el Heap actual creando uno nuevo
-        leaderboard = new MaxHeap<>(new ComparadorParticipante());
+        tablaPosiciones = new MaxHeap<>(new ComparadorParticipante());
         // 2. Volvemos a consultar la nube
         cargarLeaderboard();
         // 3. Dibujamos el Top 5 actualizado
-        actualizarLeaderboardUI();
+        actualizarTablaPosicionesUI();
     }
     @FXML
     void accionSiguienteJugador(ActionEvent event){
