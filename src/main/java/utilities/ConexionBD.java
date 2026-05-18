@@ -147,5 +147,25 @@ public class ConexionBD {
         }
         return ultimosDos;
     }
-//Comando para reiniciar los datos de la base, usar en consola SQL: TRUNCATE TABLE participante RESTART IDENTITY;
+    public static boolean reiniciarBaseDeDatos() {
+        // Llamamos a la función SQL de borrado
+        String query = "SELECT fn_reiniciar_base_datos()";
+
+        try (Connection conn = conectar();
+             PreparedStatement pstmt = conn.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            // Leemos la respuesta booleana que nos envía Postgres
+            if (rs.next()) {
+                return rs.getBoolean(1);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error de conexión al intentar reiniciar: " + e.getMessage());
+        }
+
+        return false; // Por defecto retornamos falso si algo falla
+    }
+
+
     }
