@@ -166,6 +166,16 @@ public class ConexionBD {
 
         return false; // Por defecto retornamos falso si algo falla
     }
-
-
+    public static boolean verificarConexion() {
+        try {
+            // Le damos solo 2 segundos para intentar conectar. Si no puede, falla rápido.
+            DriverManager.setLoginTimeout(2);
+            try (Connection conn = conectar()) {
+                // isValid(2) hace un "ping" a la BD de máximo 2 segundos
+                return conn != null && conn.isValid(2);
+            }
+        } catch (Exception e) {
+            return false; // Si hay cualquier error (no hay wifi), retorna falso
+        }
+    }
     }

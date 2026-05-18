@@ -290,22 +290,22 @@
                 </Label>
             <HBox layoutX="1169.0" layoutY="2.0" prefHeight="24.0" prefWidth="73.0" spacing="5.0" style="-fx-background-color: #ebebeb;">
                <children>
-                  <ImageView fx:id="imgView_ayuda" fitHeight="24.0" fitWidth="25.0" onMousePressed="#mostrarAyuda" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="imgView_ayuda" fitHeight="24.0" fitWidth="25.0" onMousePressed="#mostrarAyuda" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
                      <image>
                         <Image url="@imagenes/interrogatorio.png" />
                      </image>
                   </ImageView>
-                  <ImageView fx:id="imgView_maximizar" fitHeight="24.0" fitWidth="25.0" onMousePressed="#restaurarPantallaCompleta" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="imgView_maximizar" fitHeight="24.0" fitWidth="25.0" onMousePressed="#restaurarPantallaCompleta" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
                      <image>
                         <Image url="@imagenes/maximizar.png" />
                      </image>
                   </ImageView>
-                  <ImageView fx:id="imgView_regresar" fitHeight="24.0" fitWidth="25.0" onMousePressed="#regresarPantallaInicio" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="imgView_regresar" fitHeight="24.0" fitWidth="25.0" onMousePressed="#regresarPantallaInicio" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
                      <image>
                         <Image url="@imagenes/hogar.png" />
                      </image>
                   </ImageView>
-                  <ImageView fx:id="imgView_cerrar" fitHeight="24.0" fitWidth="25.0" onMousePressed="#cerrarAplicacion" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="imgView_cerrar" fitHeight="24.0" fitWidth="25.0" onMousePressed="#cerrarAplicacion" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
                      <image>
                         <Image url="@imagenes/cruz.png" />
                      </image>
@@ -356,5 +356,30 @@
                 <Insets top="30.0" />
             </StackPane.margin>
         </HBox>
+        <AnchorPane fx:id="idPantallaSinInternet" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: rgba(0, 0, 0, 0.85);" visible="false">
+            <children>
+                <VBox alignment="CENTER" layoutX="340.0" layoutY="250.0" prefHeight="300.0" prefWidth="600.0" spacing="20.0" style="-fx-background-color: #19436a; -fx-background-radius: 20; -fx-border-color: #ff3333; -fx-border-width: 4; -fx-border-radius: 20;">
+                    <children>
+                        <Label text="🌐 • • • ⚠" textFill="WHITE">
+                            <font><Font size="64.0" /></font>
+                        </Label>
+                        <Label text="NESSUNA CONNESSIONE" textFill="WHITE">
+                            <font><Font name="Roboto Black" size="36.0" /></font>
+                        </Label>
+                        <Label text="Riconnessione in corso... Attendere prego." textFill="#dcdcdc">
+                            <font><Font name="Roboto" size="18.0" /></font>
+                        </Label>
+                        <Button mnemonicParsing="false" onMousePressed="#cerrarAplicacion" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 2; -fx-border-radius: 10; -fx-text-fill: white; -fx-cursor: hand;" text="CHIUDI APPLICAZIONE">
+                            <font>
+                                <Font name="Roboto Black" size="16.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets top="15.0" />
+                            </VBox.margin>
+                        </Button>
+                    </children>
+                </VBox>
+            </children>
+        </AnchorPane>
     </children>
 </StackPane>
