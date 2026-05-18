@@ -444,6 +444,10 @@ private void limpiarBotonesDeLaFila(int fila){
             evaluarDuelo();
         }
 
+        if (idRealAsignado >= 20) {
+            ejecutarReseteoLocalYRemoto();
+        }
+
         btn_enviar_apuesta.setVisible(false); //Oculto el botón de enviar
         btnSiguienteJugador.setVisible(true); //Muestro el botón de siguiente
 
@@ -686,6 +690,26 @@ private void limpiarBotonesDeLaFila(int fila){
         Stage stagePrincipal = (Stage) idPanelJuego.getScene().getWindow();
         alertaAyuda.initOwner(stagePrincipal);
         alertaAyuda.showAndWait();
+    }
+
+    private void ejecutarReseteoLocalYRemoto() {
+        boolean exito = ConexionBD.reiniciarBaseDeDatos();
+
+        if (exito) {
+            // 1. Limpiamos el Heap (Leaderboard visual y lógico)
+            tablaPosiciones = new MaxHeap<>(new ComparadorParticipante());
+            actualizarTablaPosicionesUI();
+
+            // 2. Reiniciamos el número de ticket al #1
+            numeroConcursoActual = 1;
+
+            // Usamos runLater por si acaso esto se llama desde otro hilo
+            javafx.application.Platform.runLater(() -> {
+                lblConcorso.setText(String.valueOf(numeroConcursoActual));
+            });
+
+            System.out.println("El sistema ha sido reseteado correctamente.");
+        }
     }
 }
 
