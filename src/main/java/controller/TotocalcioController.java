@@ -22,36 +22,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
+import javafx.application.Platform;
 
-/**
- *Controlador principal del juego.
- *<p>
- * Como funciona el programa:
- * El programa trabaja seleccionando preguntas aleatorias, es decir, de todos los mundiales (22) y partidos de
- * la liga italiana escogidos (5) selecciona 7 y 1 respectivamente. Por lo tanto, los labels y botones asociados al respecto
- * necesitan cambiar dependiendo del partido que aparezca en pantalla.
- * <p>
- * Estos objetos siguen el siguiente formato:
- * Labels:
- * - lblTitulo_n: 7 partidos en total, por eso va de 0 a 6, aquí se pueden apreciar el título del partido. Ej. MONDIALE FRANCIA 2006
- * - lblLocal_n: todos los equipos de casa ubicados a la izquierda en cada casilla.
- * - lblVisit_n: todos los equipos de visita ubicados a la derecha en cada casilla.
- * <p>
- * Buttons:
- * Los botones 1, X, y 2 toman el siguiente formato: btn_partido_opcion
- * El centro es el partido al cual pertenece el botón, si tengo 7 (del 0 al 6) partidos, la primera pregunta tendre btn_0_opcion
- * La opción varía entre 1, X, y 2, siguiente el ejemplo anterior, hay tres posibilidades: btn_0_1, btn_0_X, btn_0_2.
- * <p>
- *  Estructura visual donde n es el número de pregunta:
- * <p>
- *  Formato General:
- *                              lblTitulo_n
- *      lblLocal_n       (label que dice "vs.")       lblVisit_n
- *      btn_n_1                  btn_n_X                btn_n_2
- * <p>
- * Nota: Este formato no aplica con la septima pregunta, pero unicamente por tema de ubicación (layout) de los objetos.
- *       De ahi, emplea la misma nomenclatura.
- */
 public class TotocalcioController {
     //El label que tiene el número del concurso tiene autoincremento, por lo que es indispensable tener una variable para ello.
     private int numeroConcursoActual = 0;
@@ -72,8 +46,10 @@ public class TotocalcioController {
     private Label[] visitantes;
     private ImageView[] imgLocales;
     private ImageView[] imgVisitantes;
+    private Timer monitorInternet;
 
 
+    @FXML private AnchorPane idPantallaSinInternet;
     @FXML private Label lblTitulo_0, lblTitulo_1, lblTitulo_2, lblTitulo_3, lblTitulo_4, lblTitulo_5, lblTitulo_6;
     @FXML private Label lblLocal_0, lblLocal_1, lblLocal_2, lblLocal_3, lblLocal_4, lblLocal_5, lblLocal_6;
     @FXML private Label lblVisit_0, lblVisit_1, lblVisit_2, lblVisit_3, lblVisit_4, lblVisit_5, lblVisit_6;
@@ -126,6 +102,7 @@ public class TotocalcioController {
         imgVisitantes = new ImageView[]{imgVisit_0, imgVisit_1, imgVisit_2, imgVisit_3, imgVisit_4, imgVisit_5, imgVisit_6};
 
         // 2. Llenamos el tablero por primera vez
+        iniciarMonitorConexion();
         llenarTablero();
         cargarLeaderboard();
         actualizarTablaPosicionesUI();
@@ -710,6 +687,26 @@ private void limpiarBotonesDeLaFila(int fila){
 
             System.out.println("El sistema ha sido reseteado correctamente.");
         }
+    }
+
+    private void iniciarMonitorConexion() {
+        monitorInternet = new Timer(true); // El 'true' significa que es un hilo "Daemon" que corre de fondo
+
+        monitorInternet.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                // 1. Esto ocurre en segundo plano (Revisa el internet)
+                boolean hayInternet = ConexionBD.verificarConexion();
+
+                // 2. Modificar la interfaz requiere volver al hilo principal de JavaFX usando Platform.runLater
+                Platform.runLater(() -> {
+                    if (idPantallaSinInternet != null) {
+                        // Si NO hay internet, mostramos la pantalla de bloqueo
+                        idPantallaSinInternet.setVisible(!hayInternet);
+                    }
+                });
+            }
+        }, 0, 4000); // Empieza de inmediato (0) y se repite cada 4000 milisegundos (4 segundos)
     }
 }
 
