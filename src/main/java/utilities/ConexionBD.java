@@ -7,7 +7,7 @@ import java.util.List;
  * Clase que facilita la conexión a la base de datos.
  */
 
-public class ConexionBD {
+public class ConexionBD implements GestorDatos{
     /**
      * Metodo para conectar con la base, usa atributos guardados en la clase Paths
      *
@@ -24,7 +24,7 @@ public class ConexionBD {
      * @param nombre
      * @param puntos
      */
-    public static int guardarParticipante(String nombre, int puntos) {
+    public int guardarParticipante(String nombre, int puntos) {
         // Llamamos a la función SQL que creamos, pasándole los 2 parámetros
         String query = "SELECT fn_guardar_participante(?, ?)";
         int idGenerado = -1; // -1 será nuestro indicador de error
@@ -126,7 +126,7 @@ public class ConexionBD {
         return bonus;
     }
 
-    public static List<Participante> obtenerUltimosDosParticipantes() {
+    public List<Participante> obtenerUltimosDosParticipantes() {
         List<Participante> ultimosDos = new ArrayList<>();
         String query = "SELECT * FROM fn_last_two()";
 
@@ -147,7 +147,7 @@ public class ConexionBD {
         }
         return ultimosDos;
     }
-    public static boolean reiniciarBaseDeDatos() {
+    public boolean reiniciarBaseDeDatos() {
         // Llamamos a la función SQL de borrado
         String query = "SELECT fn_reiniciar_base_datos()";
 
